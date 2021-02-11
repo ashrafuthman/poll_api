@@ -23,7 +23,6 @@ class AnswersController < ApplicationController
     return if answer.count > 0
   
     @answer = Answer.new(answer_params)
-    byebug
     if @answer.save
       render json: @answer, status: :created, location: @answer
     else
@@ -42,7 +41,6 @@ class AnswersController < ApplicationController
 
   # DELETE /answers/1
   def destroy
-    byebug
     @answer.destroy
   end
 
@@ -66,7 +64,6 @@ class AnswersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def answer_params
-      byebug
       user = User.where({name: params[:voter]}).first
       user = !user ? User.create({name: params[:voter]}) : user
 
