@@ -35,6 +35,12 @@ class OptionsController < ApplicationController
 
   # DELETE /options/1
   def destroy
+    answers = Answer.where({option_id: @option.id})
+  
+    if answers
+      answers.each {|answer| answer.destroy }
+    end
+  
     @option.destroy
   end
 

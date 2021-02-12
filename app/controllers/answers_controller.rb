@@ -1,5 +1,5 @@
 class AnswersController < ApplicationController
-  before_action :set_answer, only: [:show, :update]
+  before_action :set_answer, only: [:show, :update, :destroy]
 
   # GET /answers
   def index
@@ -46,21 +46,9 @@ class AnswersController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    # def set_answer
-    #   byebug
-    #   payload = JSON.parse(params[:id]).symbolize_keys
-    #   params[:id] = ''
-    #   user = User.where({name: payload[:voter]}).first
-    #   answer = user && Answer.where({
-    #     user_id: user.id,
-    #     option_id: payload[:option]["option_id"],
-    #     poll_id: payload[:option]["poll_id"]
-    #   }).first
-    #   if user && answer
-    #     params[:id] = answer.id if answer.user_id == user.id
-    #   end
-    #   @answer = Answer.find(params[:id])
-    # end
+    def set_answer
+      @answer = Answer.find(params[:id])
+    end
 
     # Only allow a list of trusted parameters through.
     def answer_params
@@ -70,7 +58,6 @@ class AnswersController < ApplicationController
       params[:answer][:poll_id] = params[:option][:poll_id]
       params[:answer][:option_id] = params[:option][:option_id]
       params[:answer][:user_id] = user.id
-
       params.require(:answer).permit(:user_id, :poll_id, :option_id)
     end
 end

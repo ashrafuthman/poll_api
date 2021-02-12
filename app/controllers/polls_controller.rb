@@ -10,18 +10,21 @@ class PollsController < ApplicationController
 
       total_answers = 0
       voters = []
+      answered_users = nil;
       options_result = options.map do |option|
         answers = Answer.where({option_id: option.id, poll_id: poll.id})
-        answered_users = answers.map { |answer| User.find(answer.user_id).name }
+        answered_users_names = answers.map { |answer| User.find(answer.user_id).name }
+        answered_users = answers.map { |answer| { name: User.find(answer.user_id).name, answer_id: answer.id  }}
         total_answers = total_answers + answers.count
-        answered_users.map { |user| voters << user } if answered_users.length > 0
+        answered_users_names.map { |user| voters << user } if answered_users.length > 0
         {
           poll_id: poll.id,
           option_id: option.id,
           option: option.body,
           description: option.description,
           totalVotes: answers.count,
-          voters: answered_users 
+          voters: answered_users_names,
+          voters_data: answered_users
         }
       end
 
@@ -30,7 +33,8 @@ class PollsController < ApplicationController
         question: poll.name,
         options: options_result,
         totalVotes: total_answers,
-        voters: voters
+        voters: voters,
+        voters_data: answered_users
       }
     end
 
@@ -74,13 +78,14 @@ class PollsController < ApplicationController
 
   # PATCH/PUT /polls/1
   def update
-    if @poll.update(poll_params)
-      render json: @poll
-    else
-      render json: @poll.errors, status: :unprocessable_entity
+    options = Option.where({poll_id: @poll.id})
+    return unless options
+
+    options_result = options.map do |option|
+      answers = Answer.where({option_id: option.id, poll_id: @poll.id})
+      answers && answers.each { |answer| answer.destroy }
     end
   end
-
   # DELETE /polls/1
   def destroy
     @poll.destroy
